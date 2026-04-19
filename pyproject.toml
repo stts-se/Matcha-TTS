@@ -1,5 +1,6 @@
 [build-system]
-requires = ["setuptools", "wheel", "cython==0.29.35", "numpy==1.24.3", "packaging"]
+#requires = ["setuptools", "wheel", "cython==0.29.35", "numpy==1.24.3", "packaging"]
+requires = ["setuptools", "wheel", "cython", "numpy", "packaging"]
 
 [tool.black]
 line-length = 120
@@ -49,3 +50,4 @@ exclude_lines = [
     "raise NotImplementedError()",
     "if __name__ == .__main__.:",
 ]
+
