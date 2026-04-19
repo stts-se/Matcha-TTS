@@ -73,7 +73,7 @@ class MatchaTTS(BaseLightningClass):  # 🍵
         self.update_data_statistics(data_statistics)
 
     @torch.inference_mode()
-    def synthesise(self, x, x_lengths, n_timesteps, temperature=1.0, spks=None, length_scale=1.0):
+    def synthesise(self, x, x_lengths, n_timesteps, temperature=1.0, spks=None, length_scale=1.0, trim_silence=False):
         """
         Generates mel-spectrogram from text. Returns:
             1. encoder outputs
@@ -120,6 +120,10 @@ class MatchaTTS(BaseLightningClass):  # 🍵
 
         w = torch.exp(logw) * x_mask
         w_ceil = torch.ceil(w) * length_scale
+        log.debug("trim_silence set to %s" % trim_silence)
+        if trim_silence:
+            w_ceil[:, :, 0] = 0   # remove leading silence, patched by STTS
+            w_ceil[:, :, -1] = torch.clamp(w_ceil[:, :, -1], max=3)  # trim trailing silence, patched by STTS
         y_lengths = torch.clamp_min(torch.sum(w_ceil, [1, 2]), 1).long()
         y_max_length = y_lengths.max()
         y_max_length_ = fix_len_compatibility(y_max_length)
